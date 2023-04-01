@@ -10,24 +10,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="130dp"
+            android:layout_height="170dp"
             android:orientation="vertical"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
             android:paddingHorizontal="40dp"
-            android:background="@color/design_default_color_primary">
+            android:background="@drawable/bg_rounded_bottom"
+            android:backgroundTint="@color/colorPrimaryVariant">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                android:textAlignment="center"/>
 
             <EditText
                 android:id="@+id/citySearchBar"
+                android:background="@drawable/bg_rounded_corners"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:paddingHorizontal="30dp"
-                android:paddingBottom="5dp"
+                android:layout_marginBottom="10dp"
                 android:hint="Enter city to search"
+                android:textAlignment="center"
                 android:inputType="text"
                 android:autofillHints="" />
 
@@ -36,7 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/baseline_refresh_24"
-                android:padding="5dp"
+                app:tint="@color/white"
+                android:padding="10dp"
                 android:contentDescription=""
                 android:background="?attr/selectableItemBackgroundBorderless"/>
 
@@ -46,19 +60,23 @@
             android:id="@+id/modelViewPager"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+            android:layout_marginTop="40dp"/>
     </LinearLayout>
-
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addCityButton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabCustomSize="80dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="130dp"
+        android:backgroundTint="@color/colorPrimaryVariant"
         android:src="@drawable/baseline_add_24"
-        />
+        app:tint="@color/white"
+        app:backgroundTint="@color/white"
+        app:borderWidth="8dp"
+        android:elevation="0dp"
+        app:elevation="0dp"/>
 
 </RelativeLayout>

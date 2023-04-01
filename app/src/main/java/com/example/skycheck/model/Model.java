@@ -215,6 +215,10 @@ public class Model {
         this.cod = cod;
     }
 
+    public double getTemp() {
+        return this.main.getTemp();
+    }
+
     @NonNull
     @Override
     public String toString() {

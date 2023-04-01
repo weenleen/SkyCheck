@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sky Check</string>
+    <string name="celsius">%1$s °C</string>
+    <string name="update_date_time">Updated: %1$s</string>
 </resources>

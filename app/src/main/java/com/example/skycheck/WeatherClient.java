@@ -26,10 +26,13 @@ public class WeatherClient {
     private final ModelAdapter modelAdapter;
     private final Context context;
 
+    private final RequestQueue requestQueue;
+
     public WeatherClient(Context context, List<Model> modelList, ModelAdapter modelAdapter) {
         this.context = context;
         this.modelList = modelList;
         this.modelAdapter = modelAdapter;
+        this.requestQueue = Volley.newRequestQueue(context);
     }
 
 
@@ -57,8 +60,7 @@ public class WeatherClient {
                     Toast.makeText(context, "Invalid Input", Toast.LENGTH_SHORT).show();
                 });
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(jor);
+        this.requestQueue.add(jor);
     }
 
     public void updateCurrLocation(double lat, double lon) {
@@ -84,27 +86,22 @@ public class WeatherClient {
                     Toast.makeText(context, "Unable to obtain current location data", Toast.LENGTH_SHORT).show();
                 });
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(jor);
+        this.requestQueue.add(jor);
     }
 
     public void refreshModelList() {
-        int totalItemCount = this.modelList.size();
-        for (int i = 0; i < totalItemCount; i++) {
-            updateItem(i);
+        for (Model m : this.modelList) {
+            updateItem(m);
         }
     }
 
 
-    private void updateItem(int position) {
-        if (position >= this.modelList.size() || position < 0) return;
-
-        String cityName = this.modelList.get(position).getCityName();
+    private void updateItem(Model m) {
 
         String apiCall = String.format(
                 locale,
                 "%sq=%s&appid=%s&units=%s",
-                BASE_URL, cityName, API_KEY, MEASURE_UNITS);
+                BASE_URL, m.getCityName(), API_KEY, MEASURE_UNITS);
 
         JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET,
                 apiCall,
@@ -112,7 +109,7 @@ public class WeatherClient {
                 response -> {
                     try {
                         Model responseModel = this.gson.fromJson(response.toString(), Model.class);
-                        modelList.set(position, responseModel);
+                        modelList.set(this.modelList.indexOf(m), responseModel);
                         modelAdapter.notifyDataSetChanged();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -123,9 +120,6 @@ public class WeatherClient {
                     Toast.makeText(context, "Invalid Input", Toast.LENGTH_SHORT).show();
                 });
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(jor);
-
-
+        this.requestQueue.add(jor);
     }
 }

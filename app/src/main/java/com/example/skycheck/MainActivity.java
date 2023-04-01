@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.example.skycheck.model.Model;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
 
 import java.util.List;
 

@@ -1,9 +1,12 @@
 package com.example.skycheck;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,12 +17,15 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.example.skycheck.model.Model;
 import com.example.skycheck.model.Weather;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class ModelAdapter extends PagerAdapter {
     private final List<Model> modelList;
     private final Context context;
     private final LayoutInflater layoutInflater;
+
+    private static final DecimalFormat df = new DecimalFormat("#.#");
 
     public ModelAdapter(List<Model> modelList, Context context) {
         this.modelList = modelList;
@@ -40,57 +46,98 @@ public class ModelAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
-        View view = layoutInflater.inflate(R.layout.item_weather, container, false);
-
-        ImageView cityImage, weatherIconImg;
-        TextView cityName, cityTemp, timeCalculated;
-        ImageButton itemDeleteButton = view.findViewById(R.id.itemDeleteButton);
-
-        cityImage = view.findViewById(R.id.cityImage);
-        weatherIconImg = view.findViewById(R.id.weatherIcon);
-        cityName = view.findViewById(R.id.cityName);
-        cityTemp = view.findViewById(R.id.cityTemp);
-        timeCalculated = view.findViewById(R.id.timeCalculated);
 
         Model currModel = modelList.get(position);
-
         Weather currWeather = currModel.getWeather().get(0);
 
         int weatherID1 = currWeather.getId() / 100;
         int weatherID2 = currWeather.getId() % 10;
         String weatherIconStr = currWeather.getIcon();
         boolean isNight = weatherIconStr.charAt(weatherIconStr.length()-1) == 'n';
+        boolean isDark = false;
+        int bg_id = R.drawable.bg_noon;
 
         if (isNight) {
-            cityImage.setImageResource(R.drawable.bg_night);
+            bg_id = R.drawable.bg_cloudy;
+            isDark = true;
         } else {
             if (weatherID1 <= 5) { //ThunderStorm, Rain, Drizzle
-                cityImage.setImageResource(R.drawable.bg_cloudy);
+                bg_id = R.drawable.bg_cloudy;
+                isDark = true;
             } else if (weatherID1 == 7) {
-                cityImage.setImageResource(R.drawable.bg_morning);
+                bg_id = R.drawable.bg_morning;
             } else if (weatherID1 == 6) { // Snow
-                cityImage.setImageResource(R.drawable.bg_snow);
-            } else if (weatherID1 == 8 && weatherID2 == 0) { // clear
-                cityImage.setImageResource(R.drawable.bg_evening);
-            } else if (weatherID1 == 8) { // cloudy
-                cityImage.setImageResource(R.drawable.bg_evening);
+                bg_id = R.drawable.bg_snow;
+            } else if (weatherID1 == 8 && weatherID2 != 0) { // cloudy
+                bg_id = R.drawable.bg_evening;
+                isDark = true;
             }
         }
 
-        int drawable_id = this.context.getResources()
-                .getIdentifier(
-                        "wic_" + weatherIconStr,
-                        "drawable", this.context.getPackageName());
+        // get view
+        final View view;
+        if (isDark) {
+            view = layoutInflater.inflate(R.layout.item_weather_dark, container, false);
+        } else {
+            view = layoutInflater.inflate(R.layout.item_weather, container, false);
+        }
+
+        ImageView cityImage, weatherIconImg;
+        TextView cityName, cityTemp, timeCalculated, cityWeatherDesc, currenLocation;
+        ImageButton itemDeleteButton = view.findViewById(R.id.itemDeleteButton);
+
+        cityImage = view.findViewById(R.id.cityImage);
+        weatherIconImg = view.findViewById(R.id.weatherIcon);
+        cityName = view.findViewById(R.id.cityName);
+        cityTemp = view.findViewById(R.id.cityTemp);
+        cityWeatherDesc = view.findViewById(R.id.cityWeatherDesc);
+        timeCalculated = view.findViewById(R.id.timeCalculated);
+        currenLocation = view.findViewById(R.id.currentLocation);
+
+        if (position != 0) currenLocation.setVisibility(View.GONE);
+
+        cityImage.setImageResource(bg_id);
+
+        Resources res = this.context.getResources();
+
+        int drawable_id = res.getIdentifier(
+                "wic_" + weatherIconStr,
+                "drawable", this.context.getPackageName());
         weatherIconImg.setImageResource(drawable_id);
 
         cityName.setText(currModel.getCityName());
-        cityTemp.setText(String.valueOf(currModel.getMain().getTemp()));
-        timeCalculated.setText(currModel.getTimeCalculated());
+        cityTemp.setText(
+                String.format(
+                        res.getString(R.string.celsius),
+                        df.format(currModel.getTemp())));
+        cityWeatherDesc.setText(currWeather.getDesc());
+        timeCalculated.setText(
+                String.format(
+                        res.getString(R.string.update_date_time),
+                        currModel.getTimeCalculated()));
 
-        itemDeleteButton.setOnClickListener(v -> {
-            modelList.remove(position);
-            this.notifyDataSetChanged();
-        });
+        if (position == 0) {
+            itemDeleteButton.setVisibility(View.GONE);
+        } else {
+            // Set animation on deletion
+            Animation anim = AnimationUtils.loadAnimation(this.context, R.anim.anim_dismiss);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) { }
+                @Override
+                public void onAnimationRepeat(Animation animation) { }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.GONE);
+                    container.postDelayed(() -> {
+                        modelList.remove(currModel);
+                        notifyDataSetChanged();
+                    }, 500);
+                }
+            });
+
+            itemDeleteButton.setOnClickListener(v -> view.startAnimation(anim));
+        }
 
         container.addView(view, 0);
         return view;
