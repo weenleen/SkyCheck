@@ -1,5 +1,8 @@
 package com.example.skycheck.model;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -203,5 +206,11 @@ public class Model {
 
     public void setCod(Long cod) {
         this.cod = cod;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }
