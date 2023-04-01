@@ -4,61 +4,90 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical">
+    android:gravity="center">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="20dp"
-        android:layout_margin="8dp">
+        android:layout_height="match_parent"
+        app:cardCornerRadius="30dp"
+        android:layout_margin="30dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/cityImage"
-                android:src="@drawable/ic_launcher_background"
-                android:scaleType="centerCrop"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"/>
+                android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="20dp">
+                <ImageView
+                    android:id="@+id/cityImage"
+                    android:src="@drawable/bg_noon"
+                    android:scaleType="centerCrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-                <TextView
-                    android:id="@+id/cityName"
-                    android:textColor="#262626"
-                    android:text="CityName"
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingVertical="100dp"
+                    android:paddingHorizontal="50dp"
+                    android:gravity="center_horizontal">
 
-                <TextView
-                    android:id="@+id/cityTemp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:text="Description"/>
+                    <TextView
+                        android:id="@+id/cityName"
+                        android:text="CityName"
+                        android:textSize="16sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                <TextView
-                    android:id="@+id/timeCalculated"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:text="Time Calculated"/>
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/timeCalculated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:text="Time Calculated"/>
 
-        </LinearLayout>
+                    <ImageView
+                        android:id="@+id/weatherIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"/>
+
+                    <TextView
+                        android:id="@+id/cityTemp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:text="30 C"/>
+
+                    <TextView
+                        android:id="@+id/cityWeather"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:text="cityWeather"/>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <ImageButton
+                android:id="@+id/itemDeleteButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/baseline_close_24"
+                android:padding="5dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
+
+
 
     </androidx.cardview.widget.CardView>
 

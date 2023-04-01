@@ -6,7 +6,11 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class Model {
 
@@ -160,8 +164,11 @@ public class Model {
         this.snow = snow;
     }
 
-    public Long getTimeCalculated() {
-        return timeCalculated;
+    public String getTimeCalculated() {
+        Date dateTime = new Date(timeCalculated * 1000L);
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+        return format.format(dateTime);
     }
 
     public void setTimeCalculated(Long timeCalculated) {

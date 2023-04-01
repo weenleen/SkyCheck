@@ -1,6 +1,7 @@
 package com.example.skycheck;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,8 +22,8 @@ public class WeatherClient {
     private final Locale locale = Locale.getDefault();
     private final Gson gson = new Gson();
 
-    private List<Model> modelList;
-    private ModelAdapter modelAdapter;
+    private final List<Model> modelList;
+    private final ModelAdapter modelAdapter;
     private final Context context;
 
     public WeatherClient(Context context, List<Model> modelList, ModelAdapter modelAdapter) {
@@ -44,14 +45,16 @@ public class WeatherClient {
                 response -> {
                     try {
                         Model responseModel = this.gson.fromJson(response.toString(), Model.class);
+                        refreshModelList();
                         modelList.add(responseModel);
                         modelAdapter.notifyDataSetChanged();
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 },
                 error -> {
                     error.printStackTrace();
+                    Toast.makeText(context, "Invalid Input", Toast.LENGTH_SHORT).show();
                 });
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
@@ -72,15 +75,57 @@ public class WeatherClient {
                         Model responseModel = this.gson.fromJson(response.toString(), Model.class);
                         modelList.set(0, responseModel);
                         modelAdapter.notifyDataSetChanged();
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 },
                 error -> {
                     error.printStackTrace();
+                    Toast.makeText(context, "Unable to obtain current location data", Toast.LENGTH_SHORT).show();
                 });
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(jor);
+    }
+
+    public void refreshModelList() {
+        int totalItemCount = this.modelList.size();
+        for (int i = 0; i < totalItemCount; i++) {
+            updateItem(i);
+        }
+    }
+
+
+    private void updateItem(int position) {
+        if (position >= this.modelList.size() || position < 0) return;
+
+        String cityName = this.modelList.get(position).getCityName();
+
+        String apiCall = String.format(
+                locale,
+                "%sq=%s&appid=%s&units=%s",
+                BASE_URL, cityName, API_KEY, MEASURE_UNITS);
+
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET,
+                apiCall,
+                null,
+                response -> {
+                    try {
+                        Model responseModel = this.gson.fromJson(response.toString(), Model.class);
+                        modelList.set(position, responseModel);
+                        modelAdapter.notifyDataSetChanged();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    error.printStackTrace();
+                    Toast.makeText(context, "Invalid Input", Toast.LENGTH_SHORT).show();
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(jor);
+
+
     }
 }

@@ -1,60 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:orientation="vertical"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:paddingHorizontal="40dp"
+            android:background="@color/design_default_color_primary">
+
+            <EditText
+                android:id="@+id/citySearchBar"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingHorizontal="30dp"
+                android:paddingBottom="5dp"
+                android:hint="Enter city to search"
+                android:inputType="text"
+                android:autofillHints="" />
+
+            <ImageButton
+                android:id="@+id/refreshButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_refresh_24"
+                android:padding="5dp"
+                android:contentDescription=""
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        </LinearLayout>
+
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/modelViewPager"
-            android:contentDescription="ViewPager for weather cards"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_margin="15dp"/>
-
-        <EditText
-            android:id="@+id/citySearchBar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:padding="15dp"
-            android:layout_marginBottom="10dp"
-            android:hint="Enter city to search"
-            android:inputType="text"
-            android:autofillHints="" />
-
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Search"/>
-
-        <TextView
-            android:id="@+id/cityTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="cityTextView"/>
-
-        <TextView
-            android:id="@+id/tempTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="tempTextView"/>
-
-        <TextView
-            android:id="@+id/dateTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="dateTextView"/>
-
+            android:layout_height="fill_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
     </LinearLayout>
 
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addCityButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="100dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/baseline_add_24"
+        />
+
+</RelativeLayout>
