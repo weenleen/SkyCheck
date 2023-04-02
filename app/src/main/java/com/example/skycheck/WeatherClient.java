@@ -88,9 +88,8 @@ public class WeatherClient {
                         if (modelList.size() < 1) {
                             modelList.add(responseModel);
                         } else {
-                            modelList.add(0, responseModel);
+                            modelList.set(0, responseModel);
                         }
-                        Log.e("", responseModel.toString());
                         modelAdapter.notifyDataSetChanged();
                     } catch (Exception e) {
                         Log.e("", "Json error");
