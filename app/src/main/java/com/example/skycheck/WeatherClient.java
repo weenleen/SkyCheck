@@ -57,7 +57,6 @@ public class WeatherClient {
                 response -> {
                     try {
                         Model responseModel = this.gson.fromJson(response.toString(), Model.class);
-                        refreshModelList();
                         modelList.add(responseModel);
                         modelAdapter.notifyDataSetChanged();
                     } catch (Exception e) {

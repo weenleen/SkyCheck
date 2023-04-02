@@ -1,5 +1,7 @@
 package com.example.skycheck;
 
+import static android.view.View.GONE;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import com.example.skycheck.model.Weather;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Objects;
 
 public class ModelAdapter extends PagerAdapter {
     private final List<Model> modelList;
@@ -47,13 +50,14 @@ public class ModelAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
 
+        Model currLocation = modelList.get(0);
         Model currModel = modelList.get(position);
 
         final View view;
         if (currModel == null) {
             view = layoutInflater.inflate(R.layout.item_error, container, false);
             if (position != 0) {
-                view.findViewById(R.id.currentLocation).setVisibility(View.GONE);
+                view.findViewById(R.id.currentLocation).setVisibility(GONE);
             }
             container.addView(view, 0);
             return view;
@@ -95,7 +99,7 @@ public class ModelAdapter extends PagerAdapter {
         }
 
         ImageView cityImage, weatherIconImg;
-        TextView cityName, cityTemp, timeCalculated, cityWeatherDesc, currenLocation;
+        TextView cityName, cityTemp, timeCalculated, cityWeatherDesc, currentLocation;
         ImageButton itemDeleteButton = view.findViewById(R.id.itemDeleteButton);
 
         cityImage = view.findViewById(R.id.cityImage);
@@ -104,9 +108,9 @@ public class ModelAdapter extends PagerAdapter {
         cityTemp = view.findViewById(R.id.cityTemp);
         cityWeatherDesc = view.findViewById(R.id.cityWeatherDesc);
         timeCalculated = view.findViewById(R.id.timeCalculated);
-        currenLocation = view.findViewById(R.id.currentLocation);
+        currentLocation = view.findViewById(R.id.currentLocation);
 
-        if (position != 0) currenLocation.setVisibility(View.GONE);
+        if (position != 0) currentLocation.setVisibility(GONE);
 
         cityImage.setImageResource(bg_id);
 
@@ -129,7 +133,7 @@ public class ModelAdapter extends PagerAdapter {
                         currModel.getTimeCalculated()));
 
         if (position == 0) {
-            itemDeleteButton.setVisibility(View.GONE);
+            itemDeleteButton.setVisibility(GONE);
         } else {
             // Set animation on deletion
             Animation anim = AnimationUtils.loadAnimation(this.context, R.anim.anim_dismiss);
@@ -140,7 +144,7 @@ public class ModelAdapter extends PagerAdapter {
                 public void onAnimationRepeat(Animation animation) { }
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(GONE);
                     container.postDelayed(() -> {
                         modelList.remove(currModel);
                         notifyDataSetChanged();
@@ -149,6 +153,12 @@ public class ModelAdapter extends PagerAdapter {
             });
 
             itemDeleteButton.setOnClickListener(v -> view.startAnimation(anim));
+        }
+
+        if (currLocation != null
+                && position != 0
+                && Objects.equals(currLocation.getCityName(), currModel.getCityName())) {
+            view.setVisibility(GONE);
         }
 
         container.addView(view, 0);
