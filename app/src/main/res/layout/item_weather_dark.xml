@@ -89,13 +89,16 @@
                 android:id="@+id/currentLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Current Location"
-                android:textColor="@color/white"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/bg_rounded_corners"
+                android:backgroundTint="@color/colorPrimaryVariant"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="5dp"
-                android:layout_margin="15dp"
-                android:background="@drawable/bg_rounded_corners"
-                android:backgroundTint="@color/colorPrimaryVariant"/>
+                android:text="@string/current_location"
+                android:textColor="@color/white" />
 
             <ImageButton
                 android:id="@+id/itemDeleteButton"

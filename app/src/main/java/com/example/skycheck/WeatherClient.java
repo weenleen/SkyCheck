@@ -1,7 +1,10 @@
 package com.example.skycheck;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -12,6 +15,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class WeatherClient {
 
@@ -37,6 +41,11 @@ public class WeatherClient {
 
 
     public void addCity(String cityName) {
+
+        for (@Nullable Model m : modelList) {
+            if (m != null && Objects.equals(m.getCityName(), cityName)) return;
+        }
+
         String apiCall = String.format(
                 locale,
                 "%sq=%s&appid=%s&units=%s",
@@ -64,6 +73,7 @@ public class WeatherClient {
     }
 
     public void updateCurrLocation(double lat, double lon) {
+        Log.e("", "UPDATING CURRENT LOCATION");
         String apiCall = String.format(
                 locale,
                 "%slat=%f&lon=%f&appid=%s&units=%s",
@@ -75,14 +85,19 @@ public class WeatherClient {
                 response -> {
                     try {
                         Model responseModel = this.gson.fromJson(response.toString(), Model.class);
-                        modelList.set(0, responseModel);
+                        if (modelList.size() < 1) {
+                            modelList.add(responseModel);
+                        } else {
+                            modelList.add(0, responseModel);
+                        }
+                        Log.e("", responseModel.toString());
                         modelAdapter.notifyDataSetChanged();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e("", "Json error");
                     }
                 },
                 error -> {
-                    error.printStackTrace();
+                    Log.e("", "Unable to obtain current location data");
                     Toast.makeText(context, "Unable to obtain current location data", Toast.LENGTH_SHORT).show();
                 });
 
@@ -90,13 +105,15 @@ public class WeatherClient {
     }
 
     public void refreshModelList() {
-        for (Model m : this.modelList) {
-            updateItem(m);
+        for (int i = 1; i < this.modelList.size(); i++) {
+            updateItem(this.modelList.get(i));
         }
     }
 
 
     private void updateItem(Model m) {
+
+        if (m == null) return;
 
         String apiCall = String.format(
                 locale,

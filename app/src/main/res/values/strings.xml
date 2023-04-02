@@ -2,4 +2,7 @@
     <string name="app_name">Sky Check</string>
     <string name="celsius">%1$s °C</string>
     <string name="update_date_time">Updated: %1$s</string>
+    <string name="search_bar_hint">Enter a city name</string>
+    <string name="current_location">Current Location</string>
+    <string name="error_message">Unable to load data. Please allow the app to access your location.</string>
 </resources>

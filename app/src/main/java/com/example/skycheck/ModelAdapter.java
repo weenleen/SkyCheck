@@ -48,6 +48,18 @@ public class ModelAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
 
         Model currModel = modelList.get(position);
+
+        final View view;
+        if (currModel == null) {
+            view = layoutInflater.inflate(R.layout.item_error, container, false);
+            if (position != 0) {
+                view.findViewById(R.id.currentLocation).setVisibility(View.GONE);
+            }
+            container.addView(view, 0);
+            return view;
+        }
+
+
         Weather currWeather = currModel.getWeather().get(0);
 
         int weatherID1 = currWeather.getId() / 100;
@@ -75,7 +87,7 @@ public class ModelAdapter extends PagerAdapter {
         }
 
         // get view
-        final View view;
+
         if (isDark) {
             view = layoutInflater.inflate(R.layout.item_weather_dark, container, false);
         } else {

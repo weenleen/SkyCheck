@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.example.skycheck.model.Model;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,18 +55,20 @@ public class MainActivity extends AppCompatActivity {
         this.modelViewPager.setAdapter(modelAdapter);
 
         this.weatherClient = new WeatherClient(this.getApplicationContext(), modelList, modelAdapter);
-        this.weatherClient.refreshModelList();
+
 
         // get current location
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("", "ACCESS_FINE_LOCATION DENIED");
                         ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERM_CODE);
         }
         if (ActivityCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("", "ACCESS_COARSE_LOCATION DENIED");
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, COARSE_LOCATION_PERM_CODE);
         }
@@ -72,9 +76,14 @@ public class MainActivity extends AppCompatActivity {
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         if (location != null) {
+            Log.e("", "LOCATION RETRIEVED");
             this.weatherClient.updateCurrLocation(
                     location.getLatitude(),
                     location.getLongitude());
+        } else {
+            Toast.makeText(this, "Unable to get current location data", Toast.LENGTH_SHORT).show();
+            this.modelList.add(0, null);
+            this.modelAdapter.notifyDataSetChanged();
         }
 
 
@@ -91,7 +100,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         this.refreshButton = findViewById(R.id.refreshButton);
-        this.refreshButton.setOnClickListener(v -> this.weatherClient.refreshModelList());
+        this.refreshButton.setOnClickListener(v -> {
+            Location tmpLoc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (tmpLoc != null) {
+                Log.e("", "LOCATION RETRIEVED");
+                this.weatherClient.updateCurrLocation(
+                        tmpLoc.getLatitude(),
+                        tmpLoc.getLongitude());
+            } else {
+                Toast.makeText(this, "Unable to get current location data", Toast.LENGTH_SHORT).show();
+            }
+            this.weatherClient.refreshModelList();
+        });
 
     }
 
@@ -124,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        this.storageManager.storeData(this.modelList);
+        List<Model> newList = new ArrayList<>(this.modelList);
+        newList.remove(0);
+        this.storageManager.storeData(newList);
     }
 }
