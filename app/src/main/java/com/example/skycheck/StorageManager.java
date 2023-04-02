@@ -75,7 +75,6 @@ public class StorageManager {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
                     this.context.openFileOutput(STORAGE_FILENAME, Context.MODE_PRIVATE));
-            Log.e("", modelList.toString());
             outputStreamWriter.write(modelList.toString());
             outputStreamWriter.close();
         } catch (IOException e) {

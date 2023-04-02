@@ -10,7 +10,9 @@
         android:layout_height="match_parent"
         app:cardCornerRadius="30dp"
         android:layout_margin="30dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="@color/white"
+        android:backgroundTint="@color/white">
 
         <TextView
             android:id="@+id/currentLocation"
