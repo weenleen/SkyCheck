@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.skycheck.model.Model;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +27,17 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int FINE_LOCATION_PERM_CODE = 100;
 
+    private final Gson gson = new Gson();
+
     private EditText citySearchBar;
     private FloatingActionButton addCityButton;
 
     private ImageButton refreshButton;
     private ViewPager modelViewPager;
 
-
-    private List<Model> modelList;
+    private List<Model> adapterList; // list used by adapter
     private ModelAdapter modelAdapter;
+    private List<Model> storedList; // list of stored cities
     private WeatherClient weatherClient;
     private StorageManager storageManager;
 
@@ -44,59 +47,121 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.weatherClient = new WeatherClient(this.getApplicationContext());
+
+        // retrieve stored data
         this.storageManager = new StorageManager(this.getApplicationContext());
+        this.storedList = this.storageManager.retrieveData();
 
-        this.modelList = this.storageManager.retrieveData();
-        this.modelList.add(0, null); // set current location as unknown
+        this.adapterList = new ArrayList<>();
+        this.adapterList.add(null);
+        this.adapterList.addAll(this.storedList);
 
-        this.modelAdapter = new ModelAdapter(this.modelList, this);
+        this.modelAdapter = new ModelAdapter(this.adapterList, this.storedList, this);
 
         this.modelViewPager = findViewById(R.id.modelViewPager);
         this.modelViewPager.setAdapter(modelAdapter);
 
-        this.weatherClient = new WeatherClient(this.getApplicationContext(), modelList, modelAdapter);
-
-
-        // get current location
-        Location location = accessFineLocation();
-        if (location != null) {
-            Log.e("", "LOCATION RETRIEVED");
-            this.weatherClient.updateCurrLocation(
-                    location.getLatitude(),
-                    location.getLongitude());
-        } else {
-            Toast.makeText(this, "Unable to get current location data", Toast.LENGTH_SHORT).show();
-        }
+        updateCurrLocation(); // update current location and adapter list
 
         this.citySearchBar = findViewById(R.id.citySearchBar);
 
         this.addCityButton = findViewById(R.id.addCityButton);
         this.addCityButton.setOnClickListener(v -> {
+            // get city name string
             String searchText = citySearchBar.getText().toString();
             if (TextUtils.isEmpty(searchText)) {
                 citySearchBar.setError("Please enter a city");
-            } else {
-                this.weatherClient.addCity(searchText);
+                return;
             }
+
+            // retrieve weather data
+            this.weatherClient.onGetCityData(
+                    searchText,
+                    response -> {
+                    try {
+                        Model responseModel = this.gson.fromJson(response.toString(), Model.class);
+
+                        // check for duplicates in stored list
+                        if (!this.storedList.contains(responseModel)) {
+                            // to add to stored list
+                            this.storedList.add(responseModel);
+
+                            // update adapterList
+                            Model currLocModel = this.adapterList.isEmpty() ? null : this.adapterList.get(0);
+                            if (!responseModel.equals(currLocModel)) {
+                                // if new city is not the current location, add to adapter list
+                                this.adapterList.add(responseModel);
+                                this.modelAdapter.notifyDataSetChanged();
+                                setPrimaryCity(responseModel);
+                            } else {
+                                // if the new city is the current location, scroll to it
+                                // no change in adapterList
+                                this.modelViewPager.setCurrentItem(0, true);
+                            }
+                        } else {
+                            // if already stored, check the position in the adapter list
+                            setPrimaryCity(responseModel);
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
         });
 
+        // refresh current location
         this.refreshButton = findViewById(R.id.refreshButton);
-        this.refreshButton.setOnClickListener(v -> {
-            Location tmpLoc = accessFineLocation();
-            if (tmpLoc != null) {
-                Log.e("", "LOCATION RETRIEVED");
-                this.weatherClient.updateCurrLocation(
-                        tmpLoc.getLatitude(),
-                        tmpLoc.getLongitude());
-            } else {
-                Toast.makeText(this, "Unable to get current location data", Toast.LENGTH_SHORT).show();
-            }
-            this.weatherClient.refreshModelList();
-        });
+        this.refreshButton.setOnClickListener(v -> updateCurrLocation());
 
     }
 
+    private void setPrimaryCity(Model m) {
+        for (int i = 0; i < this.adapterList.size(); i++) {
+            Model tmp = this.adapterList.get(i);
+            if (m.equals(tmp)) {
+                this.modelViewPager.setCurrentItem(i);
+                return;
+            }
+        }
+    }
+    
+    private void updateCurrLocation() {
+        Location location = accessFineLocation();
+        if (location != null) {
+            Log.e("", "LOCATION RETRIEVED");
+            this.weatherClient.onGetCurrLocationData(
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    response -> {
+                        adapterList.set(0, null);
 
+                        try {
+                            Model responseModel = this.gson.fromJson(response.toString(), Model.class);
+                            if (responseModel != null) {
+                                // check for duplicates
+                                for (int i = 1; i < adapterList.size(); i++) {
+                                    Model tmpModel = adapterList.get(i);
+                                    if (tmpModel.equals(responseModel)) {
+                                        adapterList.remove(tmpModel); // remove duplicate
+                                        break;
+                                    }
+                                }
+                                // set as current location
+                                adapterList.set(0, responseModel);
+                            }
+                        } catch (Exception e) {
+                            Log.e("", "Json error");
+                            Toast.makeText(this, "Unable to refresh data", Toast.LENGTH_SHORT).show();
+                        }
+
+                        modelAdapter.notifyDataSetChanged();
+                    });
+        } else {
+            Toast.makeText(this, "Unable to get current location data", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
     private Location accessFineLocation() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this,
@@ -106,13 +171,10 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERM_CODE);
         } else {
             // permission granted
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            return location;
+            return lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
         return null;
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -136,8 +198,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        List<Model> newList = new ArrayList<>(this.modelList);
-        newList.remove(0);
-        this.storageManager.storeData(newList);
+        // save data
+        this.storageManager.storeData(this.storedList);
     }
 }
