@@ -32,7 +32,7 @@ public class StorageManager {
 
     public List<Model> retrieveData() {
 
-        List<Model> modelList = null;
+        List<Model> storedList = null;
 
         try {
             FileInputStream fis = this.context.openFileInput(STORAGE_FILENAME);
@@ -49,7 +49,7 @@ public class StorageManager {
             } catch (IOException e) {
                 // Error occurred when opening raw file for reading.
             } finally {
-                modelList = gson.fromJson(
+                storedList = gson.fromJson(
                         stringBuilder.toString(),
                         new TypeToken<ArrayList<Model>>() {
                         }.getType());
@@ -58,24 +58,24 @@ public class StorageManager {
             e.printStackTrace();
         }
 
-        if (modelList == null) {
-            modelList = gson.fromJson(
+        if (storedList == null) {
+            storedList = gson.fromJson(
                     DEFAULT_DATA,
                     new TypeToken<ArrayList<Model>>() {
                     }.getType());
         }
 
-        modelList.removeAll(Collections.singleton(null));
+        storedList.removeAll(Collections.singleton(null));
 
-        return modelList;
+        return storedList;
     }
 
-    public void storeData(List<Model> modelList) {
-        Log.d("", "WRITING TO STORAGE... " + modelList.size());
+    public void storeData(List<Model> storedList) {
+        Log.d("", "WRITING TO STORAGE... " + storedList.size());
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
                     this.context.openFileOutput(STORAGE_FILENAME, Context.MODE_PRIVATE));
-            outputStreamWriter.write(modelList.toString());
+            outputStreamWriter.write(storedList.toString());
             outputStreamWriter.close();
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e);
