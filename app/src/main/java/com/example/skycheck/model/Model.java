@@ -191,6 +191,7 @@ public class Model {
         this.timezone = timezone;
     }
 
+    @NonNull
     public Long getCityID() {
         return cityID;
     }
@@ -223,5 +224,17 @@ public class Model {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (!(o instanceof Model)) {
+            return false;
+        }
+
+        Model otherModel = (Model) o;
+        return this.cityID.equals(otherModel.getCityID());
     }
 }
